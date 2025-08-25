@@ -6,6 +6,11 @@ variable "vpc_cidrs" {
   }
 }
 
+variable "project_name" {
+  type    = string
+  default = "Student-App"
+}
+
 variable "env" {
   type    = list(string)
   default = ["dev", "staging", "prod"]

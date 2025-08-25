@@ -1,7 +1,3 @@
-# ---------------------------------------
-# VPC CREATION FOR BOTH VPC
-# ---------------------------------------
-
 terraform {
   required_providers {
     aws = {
@@ -10,6 +6,10 @@ terraform {
     }
   }
 }
+
+# ---------------------------------------
+# VPC CREATION FOR BOTH VPC
+# ---------------------------------------
 resource "aws_vpc" "two_vpc" {
   for_each             = var.vpc_cidrs
   cidr_block           = each.value
@@ -19,6 +19,7 @@ resource "aws_vpc" "two_vpc" {
   tags = {
     Name        = each.key
     Environment = var.env[0]
+    Project     = var.project_name
   }
 }
 
@@ -31,7 +32,9 @@ resource "aws_internet_gateway" "for_both_igw" {
   vpc_id = each.value.id
 
   tags = {
-    Name = "IGW-${each.key}"
+    Name        = "IGW-${each.key}"
+    Environment = var.env[0]
+    Project     = var.project_name
   }
 }
 
@@ -48,6 +51,7 @@ resource "aws_subnet" "bastion_pub_sub" {
   tags = {
     Name        = "Bastion-Pub-Sub"
     Environment = var.env[0]
+    Project     = var.project_name
   }
 
   depends_on = [aws_vpc.two_vpc]
@@ -68,6 +72,7 @@ resource "aws_route_table" "bastion_pub_sub_rt" {
   tags = {
     Name        = "Bastion-Pub-Sub-RT"
     Environment = var.env[0]
+    Project     = var.project_name
   }
 
   depends_on = [
@@ -97,12 +102,13 @@ resource "aws_route_table_association" "bastion_pub_sub_rt_associ" {
 resource "aws_subnet" "main_pub_sub" {
   vpc_id = aws_vpc.two_vpc["Main-VPC"].id
 
-  cidr_block = var.main_sub_cidr["pub_cidr"]
+  cidr_block        = var.main_sub_cidr["pub_cidr"]
   availability_zone = var.azs[0]
 
   tags = {
-    Name        = "Main-Pub-Sub-${count.index}"
+    Name        = "Main-Pub-Sub"
     Environment = var.env[0]
+    Project     = var.project_name
   }
 }
 
@@ -121,6 +127,7 @@ resource "aws_route_table" "main_pub_sub_rt" {
   tags = {
     Name        = "Main-Pub-Sub-RT"
     Environment = var.env[0]
+    Project     = var.project_name
   }
 }
 
